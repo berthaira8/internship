@@ -5,19 +5,20 @@ import Notification from "../database/models/notification.js";
 
 export const createAppointment = async (req, res) => {
   try {
-    const { patientId, doctorId, date } = req.body;
+    const { patient_id, doctor_id, appointment_date } = req.body;
 
     const appointment = await Appointment.create({
-      patient_id: patientId,
-      doctor_id: doctorId,
-      appointment_date: date
+      patient_id,
+      doctor_id,
+      appointment_date
     });
 
-    // ✅ CREATE NOTIFICATION FOR DOCTOR
+    // 🔔 notify doctor
     await Notification.create({
-      user_id: doctorId, // who receives notification
-      type: "appointment_request",
-      message: "You have a new appointment request",
+      user_id: doctor_id,
+      type: "appointment_created",
+      message: "New appointment request",
+      title: "New Appointment",
       status: "unread"
     });
 
@@ -30,13 +31,57 @@ export const createAppointment = async (req, res) => {
 
 export const getPatientAppointments = async (req, res) => {
   try {
-    const { patientId } = req.params;
+    const { patient_id } = req.params;
 
     const appointments = await Appointment.findAll({
-      where: { patient_id: patientId } // ✅ FIXED
+      where: { patient_id: patient_id } // ✅ FIXED
     });
 
     res.json(appointments);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+export const getDoctorAppointments = async (req, res) => {
+  try {
+    const { doctor_id } = req.params;
+
+    const appointments = await Appointment.findAll({
+      where: { doctor_id: doctor_id }
+    });
+
+    res.json(appointments);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+export const confirmAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const appointment = await Appointment.findByPk(id);
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // ✅ update status
+    appointment.status = "confirmed";
+    await appointment.save();
+
+    // ✅ create notification automatically
+    await Notification.create({
+      user_id: appointment.patient_id,
+      type: "appointment",
+      message: "Your appointment has been confirmed",
+      title: "Appointment Confirmed"
+    });
+
+    res.json({ message: "Appointment confirmed ✅" });
 
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -60,7 +105,7 @@ export const cancelAppointment = async (req, res) => {
 
     // ✅ FIXED NOTIFICATION
     await Notification.create({
-      user_id: appointment.patient_id, // correct field
+      user_id: appointment.patient_id, 
       type: "appointment_cancelled",
       message: `Appointment cancelled: ${reason}`,
       status: "unread"

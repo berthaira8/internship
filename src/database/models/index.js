@@ -1,5 +1,5 @@
-import sequelize from "./src/config/db.js";
-import User from "./users.js";
+import sequelize from "../../config/db.js";
+import User from "../models/users.js";
 
 const db={
     sequelize, 

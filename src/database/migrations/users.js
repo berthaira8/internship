@@ -1,8 +1,8 @@
-import sequelize from "./src/config/db.js";
+import sequelize from "../../config/db.js";
 import User from "../models/users.js";
 
-export const createdUserTable=async()=>{
+export const createUserTable=async()=>{
     await sequelize.authenticate();
-    await User.sync({alter:true});
-    console.log("Table created successfully 🔥🔥🔥🔥🔥🔥🔥");
+    await User.sync({alter:true, logging: false});
+    console.log("Users table created successfully 🔥🔥🔥🔥🔥🔥🔥");
 }

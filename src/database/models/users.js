@@ -1,21 +1,18 @@
 import { DataTypes,Model } from "sequelize";
-import sequelize from "../config/db.js";
-
+import sequelize from "../../config/db.js";
 
 class User extends Model{}
+
 User.init({
     id:{
         type:DataTypes.UUID,
         defaultValue:DataTypes.UUIDV4,
         allowNull:false,
-        primaryValue:true
-
+        primaryKey:true
     },
     fullName:{
         type:DataTypes.STRING,
         allowNull:false,
-        unique:true
-
     },
     email:{
         type:DataTypes.STRING,
@@ -30,16 +27,54 @@ User.init({
         type:DataTypes.DATE,
         allowNull:false
     },
-    updatedAt:{
-        type:DataTypes.DATE,
-        allowNull:false
-    }
+   updatedAt:{
+    type:DataTypes.DATE,
+    allowNull:false
+   }, 
+   role:{
+    enum:['patient','doctor','admin'],
+    type:DataTypes.STRING,
+    defaultValue:'patient',
+    allowNull:false
+   },
+   date_of_birth:{
+    type:DataTypes.DATE,
+    allowNull:true
+   },
+   gender:{
+    type:DataTypes.STRING,
+    enum:['male','female','others']
+   },
+   location:{
+    type:DataTypes.STRING,
+    allowNull:true
+   },
+   profile_image:{
+    type:DataTypes.STRING,
+    allowNull:true
+   },
+   status:{
+    type:DataTypes.STRING,
+    enum:['active','inactive','blocked']
+   },
+   emergency_contact:{
+    type:DataTypes.STRING,
+    allowNull:true
+   },
+   
+   resetPasswordToken: {
+  type: DataTypes.STRING
+},
+resetPasswordExpires: {
+  type: DataTypes.DATE
 
-},{ 
-    sequelize,
-    modelName:'User',
-    tableName:'users',
-    timestamps:true
+   }},{
+    
+sequelize,
+modelName:'user',
+tableName:'users',
+timestamps:true
+    
 })
-
 export default User
+
